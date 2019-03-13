@@ -47,20 +47,31 @@ type StravaActivity struct {
 //https://www.strava.com/oauth/authorize?client_id=&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&response_type=code&scope=activity%3Awrite%2Cread&state=hvilNIqpcZ1uD5mn
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/", indexHandler)
+	//var dir string
+
+	//flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
+	//flag.Parse()
+
+	router := mux.NewRouter()
+
+	//TODO: Tidy up the code, add templates for the static htmls
+	//TODO: Move the handlers to a seperate .go file.
+	//TODO: Remove all commented code that is not in use.
+	//router.HandleFunc("/", indexHandler)
 	router.HandleFunc("/login", loginHandler)
 	router.HandleFunc("/callback", callbackHandler)
 	router.HandleFunc("/activities", activitiesHandler)
 
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+
+	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	//http.Handle("/", router)
+
 	http.ListenAndServe(":3000", router)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w, os.Getenv("STRAVA_CLIENT_ID"))
-	fmt.Fprintln(w, "<a href='/login'>Log in with Strava</a>")
-}
+//func indexHandler(w http.ResponseWriter, r *http.Request) {}
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	oauthStateString := uniuri.New()
